@@ -12,6 +12,34 @@ Dependencies:
 2) Copy or move all the YYYYMMDD directories to one directory  ie: ./CNG/images
 3) Copy the index.html file to the same directory (ie: ./CNG/images/index.html)
 
+Directory we used:
+root@pc: /home/user1/Documents/CNG/images# ls -1
+18881001
+18890401
+18890701
+18891001
+18900401
+18900501
+18900701
+18900801
+18910328
+18910401
+18910430
+<snip>
+index.html
+root@pc: /home/user1/Documents/CNG/images#
+
+root@Lenovo-Red:/home/michelle/Documents/CNG/images# ls 20071201
+'2007_12_Dinosaurs_side 2.jpg'             NGM_2007_12_080_4.jpg   NGM_2007_12_161_4.jpg
+'2007_12_Planet of Dinosaurs_side 1.jpg'   NGM_2007_12_081_4.jpg   NGM_2007_12_162_4.jpg
+ NGM_2007_12_001_4.jpg                     NGM_2007_12_082_4.jpg   NGM_2007_12_163_4.jpg
+ NGM_2007_12_002_4.jpg                     NGM_2007_12_083_4.jpg   NGM_2007_12_164_4.jpg
+ NGM_2007_12_003_4.jpg                     NGM_2007_12_084_4.jpg   NGM_2007_12_165_4.jpg
+ NGM_2007_12_004_4.jpg                     NGM_2007_12_085_4.jpg   NGM_2007_12_166_4.jpg
+<snip>
+root@pc: /home/user1/Documents/CNG/images#
+
+
 If when viewing the magazines, the images go off the right or left sides, increase the size of your browser window if it isn't full screen. Some images on the dvds are quite large.
 
 When you open the index.html the view of the National Geographic images will include scroll buttons for year and month on the top left, 
