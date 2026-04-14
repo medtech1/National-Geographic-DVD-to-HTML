@@ -13,7 +13,7 @@ html, body {
   font-family: sans-serif;
 }
 
-/* 🔥 TOP LEFT TOOLBAR */
+/* TOP LEFT TOOLBAR */
 .top-controls {
   position: fixed;
   top: 10px;
@@ -69,7 +69,7 @@ html, body {
   padding: 20px;
 }
 
-/* 🔥 NAV BUTTONS */
+/*  NAV BUTTONS */
 /*.controls {
   position: fixed;
   bottom: 10px;
@@ -81,7 +81,7 @@ html, body {
 .controls {
   position: fixed;
   bottom: 10px;
-  left: 10px;   /* 🔥 move to left */
+  left: 10px;   /*  move to left */
   display: flex;
   gap: 10px;
 }
@@ -91,7 +91,7 @@ html, body {
   padding: 6px 10px;
   font-size: 30px;
   background: rgba(255, 255, 255, 0.08);
-  color: rgba(0, 0, 0, 1);
+  color: rgba(255, 255, 0, 1);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   cursor: pointer;
@@ -116,7 +116,7 @@ button, select {
 
 <body>
 
-<!-- 🔥 YEAR / MONTH CONTROLS -->
+<!--  YEAR / MONTH CONTROLS -->
 <div class="top-controls">
   <select id="yearSelect"></select>
   <select id="monthSelect"></select>
@@ -124,7 +124,7 @@ button, select {
 
 <div id="viewer"></div>
 
-<!-- 🔥 NAV BUTTONS -->
+<!--  NAV BUTTONS -->
 <div class="controls">
   <button onclick="prev()">&lt;</button>
   <button onclick="next()">&gt;</button>
@@ -224,7 +224,7 @@ const yearSelect = document.getElementById("yearSelect");
 const monthSelect = document.getElementById("monthSelect");
 
 /* years */
-for (let y = 1980; y <= 2025; y++) {
+for (let y = 1888; y <= 2008; y++) {
   const opt = document.createElement("option");
   opt.value = y;
   opt.textContent = y;
