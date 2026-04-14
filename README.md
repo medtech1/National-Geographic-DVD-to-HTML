@@ -12,3 +12,4 @@ Dependencies:
 
 When you open the index.html the view of the National Geographic images will include scroll buttons for year and month on the top left, 
 and page scroll buttons on the bottom left.
+<img width="2626" height="1906" alt="front1" src="https://github.com/user-attachments/assets/d0dbf37e-b97a-4646-a926-8e9f89965639" />
