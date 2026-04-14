@@ -12,6 +12,8 @@ Dependencies:
 2) Copy or move all the YYYYMMDD directories to one directory  ie: ./CNG/images
 3) Copy the index.html file to the same directory (ie: ./CNG/images/index.html)
 
+If when viewing the magazines, the images go off the right or left sides, increase the size of your browser window if it isn't full screen. Some images on the dvds are quite large.
+
 When you open the index.html the view of the National Geographic images will include scroll buttons for year and month on the top left, 
 and page scroll buttons on the bottom left.
 
