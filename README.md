@@ -12,4 +12,15 @@ Dependencies:
 
 When you open the index.html the view of the National Geographic images will include scroll buttons for year and month on the top left, 
 and page scroll buttons on the bottom left.
+
+Here are some samples of what the viewing looks like:
+
+
+
 <img width="2626" height="1906" alt="front1" src="https://github.com/user-attachments/assets/d0dbf37e-b97a-4646-a926-8e9f89965639" />
+
+
+<img width="2820" height="1920" alt="screen1" src="https://github.com/user-attachments/assets/a37c1950-f797-4432-b09a-7d3cb0a2798d" />
+
+
+<img width="3288" height="1914" alt="screen2" src="https://github.com/user-attachments/assets/a37e8255-a2e5-4ad5-aa65-3519cb3bd5b0" />
