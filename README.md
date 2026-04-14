@@ -1,5 +1,7 @@
 This index.html is one we got working with the National Geographic  - Every Issue Since 1888.
 
+NOTE:  THIS IS WORK IN PROGRESS and can allow users who had purchased the National Geographic - All Issues DVD's to work with a simple index.html once the images are extracted from the DVDs which tools are available to do (ie: CNG2JPG). It isn't perfect but it is workable.
+
 The following are dependences based on how we are testing the index.html files and this is just for testing.
 
 Dependencies:
