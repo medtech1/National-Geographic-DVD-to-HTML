@@ -1,7 +1,6 @@
 Updates:  
 
-### index.html
-Modified - Apr 15th, 2026
+index.html   Modified - Apr 15th, 2026
 
 
 This index.html is one we got working with the National Geographic  - Every Issue Since 1888.
