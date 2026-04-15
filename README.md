@@ -36,7 +36,11 @@ Here are some samples of what the viewing looks like:
 
 
 
-Here’s a clear, structured overview of what this flipbook viewer can do based on your code :
+
+
+
+Here’s a clear, structured overview of what this flipbook viewer can do based on the index.html code :
+
 
 📖 Core Viewer Features
 
