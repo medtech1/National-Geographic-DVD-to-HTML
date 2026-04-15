@@ -13,7 +13,6 @@ html, body {
   font-family: sans-serif;
 }
 
-/* TOP LEFT TOOLBAR */
 .top-controls {
   position: fixed;
   top: 10px;
@@ -22,7 +21,7 @@ html, body {
   gap: 10px;
   z-index: 10;
   background: rgba(0,0,0,0.4);
-  padding: 8px 10px;
+  padding: 8px;
   border-radius: 6px;
 }
 
@@ -32,91 +31,81 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-/* SINGLE PAGE */
+.zoom-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 0 0;
+  cursor: grab;
+}
+
+.zoom-container.dragging {
+  cursor: grabbing;
+}
+
 .single-page {
   max-width: 100vw;
   max-height: 100vh;
   object-fit: contain;
-  display: block;
 }
 
-/* SPREAD */
 .spread {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
 }
 
 .spread img,
 .not-found {
   height: 100vh;
-  width: auto;
   object-fit: contain;
-  display: block;
 }
 
-/* Not found */
 .not-found {
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   background: #333;
-  font-size: 24px;
+  font-size: 20px;
   padding: 20px;
 }
-
-/*  NAV BUTTONS */
-/*.controls {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px; */
 
 .controls {
   position: fixed;
   bottom: 10px;
-  left: 10px;   /*  move to left */
+  left: 10px;
   display: flex;
   gap: 10px;
 }
 
-/* subtle arrow buttons */
 .controls button {
-  padding: 6px 10px;
-  font-size: 30px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 0, 1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  font-size: 28px;
+  background: rgba(255,255,255,0.1);
+  color: yellow;
+  border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
-  opacity: 1.5;
-  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-/* hover effect */
-.controls button:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* UI selects */
-button, select {
+#pageInfo {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: white;
+  background: rgba(0,0,0,0.5);
   padding: 6px 10px;
-  font-size: 14px;
+  border-radius: 4px;
+}
+
+select {
+  padding: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<!--  YEAR / MONTH CONTROLS -->
 <div class="top-controls">
   <select id="yearSelect"></select>
   <select id="monthSelect"></select>
@@ -124,139 +113,257 @@ button, select {
 
 <div id="viewer"></div>
 
-<!--  NAV BUTTONS -->
 <div class="controls">
   <button onclick="prev()">&lt;</button>
   <button onclick="next()">&gt;</button>
 </div>
 
-<script>
-const totalPages = 200;
+<div id="pageInfo"></div>
 
+<script>
+let totalPages = 0;
 let page = 1;
 
-/* state */
 let year = "1990";
 let month = "10";
 
+/* zoom */
+let scale = 1, offsetX = 0, offsetY = 0;
+let isDragging = false, startX, startY;
+let currentContainer = null;
+
+/* cache */
+const pageCache = {};
+
 /* helpers */
-function pad(n, size) {
-  return String(n).padStart(size, '0');
-}
+function pad(n,s){return String(n).padStart(s,'0');}
+function getDateFolder(){return `${year}${month}01`;}
+function imgSrc(n){return `./${getDateFolder()}/NGM_${year}_${month}_${pad(n,3)}_4.jpg`;}
 
-/* folder + file path */
-function getDateFolder() {
-  return `${year}${month}01`;
-}
-
-function imgSrc(n) {
-  const prefix = `NGM_${year}_${month}_`;
-  return `${getDateFolder()}/${prefix}${pad(n,3)}_4.jpg`;
-}
-
-/* fallback */
-function createNotFound() {
-  const div = document.createElement("div");
-  div.className = "not-found";
-  div.textContent = "No Page (Ignore)";
-  return div;
-}
-
-/* image */
-function createImage(n) {
-  const img = document.createElement("img");
-  img.src = imgSrc(n);
-
-  img.onerror = function () {
-    img.replaceWith(createNotFound());
-  };
-
-  return img;
-}
-
-/* render */
-function render() {
-  const viewer = document.getElementById("viewer");
-  viewer.innerHTML = "";
-
-  if (page === 1) {
-    const img = createImage(1);
-    img.className = "single-page";
-    viewer.appendChild(img);
+/* detect pages */
+async function detectTotalPages(maxCheck = 500) {
+  const key = `${year}-${month}`;
+  if (pageCache[key]) {
+    totalPages = pageCache[key];
     return;
   }
 
-  const spread = document.createElement("div");
-  spread.className = "spread";
+  let lastValid = 0;
+  const batchSize = 10;
 
-  const left = page;
-  const right = page + 1;
+  for (let i = 1; i <= maxCheck; i += batchSize) {
+    const batch = [];
 
-  spread.appendChild(createImage(left));
-  spread.appendChild(
-    right <= totalPages ? createImage(right) : createNotFound()
-  );
+    for (let j = i; j < i + batchSize && j <= maxCheck; j++) {
+      batch.push(imageExists(imgSrc(j)).then(exists => ({j, exists})));
+    }
 
-  viewer.appendChild(spread);
+    const results = await Promise.all(batch);
+    results.forEach(r => { if (r.exists) lastValid = r.j; });
+  }
+
+  pageCache[key] = lastValid;
+  totalPages = lastValid;
+}
+
+function imageExists(src){
+  return new Promise(r=>{
+    const i=new Image();
+    i.onload=()=>r(true);
+    i.onerror=()=>r(false);
+    i.src=src;
+  });
+}
+
+/* elements */
+function createImage(n){
+  const img=document.createElement("img");
+  img.src=imgSrc(n);
+  img.onerror=()=>img.replaceWith(createNotFound());
+  return img;
+}
+
+function createNotFound(){
+  const d=document.createElement("div");
+  d.className="not-found";
+  d.textContent="No Page (Ignore)";
+  return d;
+}
+
+/* transform */
+function applyTransform(){
+  if (!currentContainer) return;
+  currentContainer.style.transform =
+    `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+}
+
+/* reset zoom */
+function resetZoom() {
+  if (!currentContainer) return;
+
+  currentContainer.style.transition = "transform 0.25s ease";
+
+  scale = 1;
+  offsetX = 0;
+  offsetY = 0;
+  applyTransform();
+
+  setTimeout(() => {
+    currentContainer.style.transition = "";
+  }, 250);
+}
+
+/* zoom + pan */
+function enableZoomPan(container){
+  currentContainer = container;
+
+  container.onwheel = (e)=>{
+    e.preventDefault();
+
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const prevScale = scale;
+
+    scale += e.deltaY < 0 ? 0.1 : -0.1;
+    scale = Math.min(Math.max(1, scale), 5);
+
+    const scaleChange = scale / prevScale;
+
+    offsetX -= (mouseX - offsetX) * (scaleChange - 1);
+    offsetY -= (mouseY - offsetY) * (scaleChange - 1);
+
+    applyTransform();
+  };
+
+  container.onmousedown = (e)=>{
+    isDragging = true;
+    startX = e.clientX - offsetX;
+    startY = e.clientY - offsetY;
+    container.classList.add("dragging");
+  };
+
+  container.ondblclick = () => {
+    resetZoom();
+  };
+}
+
+/* global drag */
+window.addEventListener("mousemove", (e)=>{
+  if (!isDragging) return;
+  offsetX = e.clientX - startX;
+  offsetY = e.clientY - startY;
+  applyTransform();
+});
+
+window.addEventListener("mouseup", ()=>{
+  isDragging = false;
+  if (currentContainer) currentContainer.classList.remove("dragging");
+});
+
+/* preload */
+function preload(n){
+  const img = new Image();
+  img.src = imgSrc(n);
+}
+
+function preloadNearby(){
+  preload(page + 1);
+  preload(page + 2);
+}
+
+/* render */
+function render(){
+  const viewer=document.getElementById("viewer");
+  viewer.innerHTML="";
+
+  if(totalPages===0){
+    viewer.innerHTML="<div class='not-found'>Loading...</div>";
+    return;
+  }
+
+  const zoomWrap=document.createElement("div");
+  zoomWrap.className="zoom-container";
+
+  if(page===1){
+    const img=createImage(1);
+    img.className="single-page";
+    zoomWrap.appendChild(img);
+  } else {
+    const spread=document.createElement("div");
+    spread.className="spread";
+
+    spread.appendChild(createImage(page));
+    spread.appendChild(
+      page+1<=totalPages?createImage(page+1):createNotFound()
+    );
+
+    zoomWrap.appendChild(spread);
+  }
+
+  viewer.appendChild(zoomWrap);
+  enableZoomPan(zoomWrap);
+
+  document.getElementById("pageInfo").textContent =
+    page === 1
+      ? `Page 1 of ${totalPages}`
+      : `Pages ${page}-${Math.min(page+1,totalPages)} of ${totalPages}`;
+
+  preloadNearby();
 }
 
 /* navigation */
-function next() {
-  page = (page === 1) ? 2 : page + 2;
-  if (page > totalPages) page = totalPages;
+function next(){
+  page=(page===1)?2:page+2;
+  if(page>totalPages) page=totalPages;
   render();
 }
 
-function prev() {
-  if (page === 1) return;
-  page = (page <= 3) ? 1 : page - 2;
+function prev(){
+  if(page===1) return;
+  page=(page<=3)?1:page-2;
   render();
 }
 
 /* keyboard */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") next();
-  if (e.key === "ArrowLeft") prev();
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
 
 /* dropdowns */
-const yearSelect = document.getElementById("yearSelect");
-const monthSelect = document.getElementById("monthSelect");
+const yearSelect=document.getElementById("yearSelect");
+const monthSelect=document.getElementById("monthSelect");
 
-/* years */
-for (let y = 1888; y <= 2008; y++) {
-  const opt = document.createElement("option");
-  opt.value = y;
-  opt.textContent = y;
-  if (y == year) opt.selected = true;
-  yearSelect.appendChild(opt);
+for(let y=1888;y<=2008;y++){
+  const o=document.createElement("option");
+  o.value=y;o.textContent=y;
+  if(y==year)o.selected=true;
+  yearSelect.appendChild(o);
 }
 
-/* months */
-for (let m = 1; m <= 12; m++) {
-  const mm = pad(m, 2);
-  const opt = document.createElement("option");
-  opt.value = mm;
-  opt.textContent = mm;
-  if (mm === month) opt.selected = true;
-  monthSelect.appendChild(opt);
+for(let m=1;m<=12;m++){
+  const mm=pad(m,2);
+  const o=document.createElement("option");
+  o.value=mm;o.textContent=mm;
+  if(mm===month)o.selected=true;
+  monthSelect.appendChild(o);
 }
 
-/* update handlers */
-yearSelect.addEventListener("change", () => {
-  year = yearSelect.value;
-  page = 1;
+/* reload */
+async function reloadAndDetect(){
+  page=1;
+  totalPages=0;
   render();
-});
-
-monthSelect.addEventListener("change", () => {
-  month = monthSelect.value;
-  page = 1;
+  await detectTotalPages();
   render();
-});
+}
 
-/* init */
-render();
+yearSelect.onchange=()=>{year=yearSelect.value;reloadAndDetect();};
+monthSelect.onchange=()=>{month=monthSelect.value;reloadAndDetect();};
+
+reloadAndDetect();
 </script>
 
 </body>
