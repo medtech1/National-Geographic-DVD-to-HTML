@@ -1,8 +1,3 @@
-Updates:  
-
-index.html   Modified - Apr 15th, 2026
-
-
 This index.html is one we got working with the National Geographic  - Every Issue Since 1888.
 
 NOTE:  THIS IS WORK IN PROGRESS and can allow users who had purchased the National Geographic - All Issues DVD's and an index.html once the images are extracted from the DVDs which tools are available to do (ie: CNG2JPG). It isn't perfect (it does have glitches! - Help make this project better!) but it is workable.
